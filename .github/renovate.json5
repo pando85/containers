@@ -5,9 +5,9 @@
     {
       customType: "regex",
       description: "Process Annotations in Dockerfiles",
-      managerFilePatterns: ["/(^|/)Dockerfile$/"],
+      managerFilePatterns: ["/(^|/)(Dockerfile|docker-bake\\.hcl)$/"],
       matchStrings: [
-        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\n.+(:\\s|=)(&\\S+\\s)?(?<currentValue>\\S+)",
+        "(?<annotation>// renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+).*)\\n\\s*default\\s*=\\s*\"(?<currentValue>[^\"]+)\"",
       ],
       datasourceTemplate: "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}",
       versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
@@ -35,7 +35,7 @@
       description: ["Allowed Ubuntu Version for Base Images"],
       matchDatasources: ["docker"],
       matchPackageNames: ["/ubuntu/"],
-      allowedVersions: "/24\\.04/",
+        allowedVersions: "/24\\.04|noble(-[0-9]+)?/",
     },
     {
       description: ["Allowed Alpine Version for Base Images"],
