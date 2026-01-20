@@ -1,4 +1,4 @@
-module github.com/home-operations/containers
+module github.com/pando85/containers
 
 go 1.25.1
 
