@@ -217,7 +217,6 @@ RUN curl -fsSL https://packages.redis.io/gpg | gpg --dearmor > /usr/share/keyrin
     && apt-get install -y redis-server \
     && rm -rf /var/lib/apt/lists/*
 
-
 # yq setup
 RUN curl -fsSL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${TARGETARCH} -o /usr/local/bin/yq \
     && chmod +x /usr/local/bin/yq
