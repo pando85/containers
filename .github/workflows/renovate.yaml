@@ -6,9 +6,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - .renovaterc.json5
-      - .renovate/**.json5
   workflow_dispatch:
 
 jobs:
