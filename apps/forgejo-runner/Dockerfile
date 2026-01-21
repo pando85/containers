@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 ARG VERSION
-FROM code.forgejo.org/forgejo/runner AS forgejo-runner
+FROM code.forgejo.org/forgejo/runner:${VERSION} AS forgejo-runner
 FROM ghcr.io/pando85/ci-runner:rolling
 ARG TARGETARCH
 
