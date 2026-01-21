@@ -84,7 +84,7 @@ RUN apt-get update \
         m4 \
         mediainfo \
         net-tools \
-        netcat-traditional \
+        netcat-openbsd \
         p7zip-full \
         parallel \
         patchelf \
