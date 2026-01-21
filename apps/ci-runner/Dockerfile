@@ -72,18 +72,19 @@ RUN apt-get update \
         binutils \
         bison \
         brotli \
-        libnss3-tools \
         coreutils \
         file \
         findutils \
         flex \
         ftp \
+        git \
         haveged \
+        libnss3-tools \
         lz4 \
         m4 \
         mediainfo \
-        netcat-traditional \
         net-tools \
+        netcat-traditional \
         p7zip-full \
         parallel \
         patchelf \
@@ -109,8 +110,14 @@ RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /
         $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
     && apt-get update \
     && apt-get install -y --no-install-recommends docker-ce-cli \
-    && rm -rf /var/lib/apt/lists/*
-
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -pv /usr/libexec/docker/cli-plugins \
+    && buildx_url=$(curl -fsSL https://api.github.com/repos/docker/buildx/releases/latest | grep "browser_download_url.*linux.*.${TARGETARCH}\"" | cut -d : -f 2,3 | tr -d \") \
+    && curl -fsSL ${buildx_url} -o /usr/libexec/docker/cli-plugins/docker-buildx \
+    && chmod +x /usr/libexec/docker/cli-plugins/docker-buildx \
+    && arch=$([ "$TARGETARCH" = "amd64" ] && echo "x86_64" || ([ "$TARGETARCH" = "arm64" ] && echo "aarch64" || echo "$TARGETARCH")) \
+    && curl -fsSL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-${arch} -o /usr/libexec/docker/cli-plugins/docker-compose \
+    && chmod +x /usr/libexec/docker/cli-plugins/docker-compose
 
 # python and pipx setup
 ENV PIPX_BIN_DIR=/opt/pipx_bin
