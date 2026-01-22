@@ -52,6 +52,20 @@
       allowedVersions: "/3\\.13-alpine3\\.23/",
     },
     {
+      "description": ["Automerge Docker digest updates"],
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["digest"],
+      "branchPrefix": "renovate/docker-digest-{{depName}}/",
+      "reuseBranch": false,
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      matchUpdateTypes: ["digest"],
+      semanticCommitType: "chore",
+      commitMessageExtra: "({{newDigestShort}})",
+    },
+    {
       description: ["Auto-merge ghcr.io/pando85/ci-runner updates"],
       matchDatasources: ["docker"],
       matchPackageNames: ["ghcr.io/pando85/ci-runner"],
