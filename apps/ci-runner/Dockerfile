@@ -137,14 +137,15 @@ RUN apt-get update \
     && python3 -m pipx ensurepath
 
 # rust setup
-ENV RUSTUP_HOME=/etc/skel/.rustup
-ENV CARGO_HOME=/etc/skel/.cargo
+ENV RUSTUP_HOME=/usr/share/rust/.rustup
+ENV CARGO_HOME=/usr/share/rust/.cargo
 ENV PATH="$CARGO_HOME/bin:$PATH"
 
 RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --default-toolchain=stable --profile=minimal \
     && . $CARGO_HOME/env \
     && rustup component add rustfmt clippy \
-    && rm -rf ${CARGO_HOME}/registry/*
+    && rm -rf ${CARGO_HOME}/registry/* \
+    && chmod -R 777 "$(dirname "${RUSTUP_HOME}")"
 
 # nodejs setup
 RUN curl -fsSL https://raw.githubusercontent.com/tj/n/master/bin/n -o /tmp/n \
