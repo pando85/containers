@@ -51,5 +51,13 @@
       matchPackageNames: ["/python/"],
       allowedVersions: "/3\\.13-alpine3\\.23/",
     },
+    {
+      description: ["Auto-merge ghcr.io/pando85/ci-runner updates"],
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/pando85/ci-runner"],
+      pinDigests: true,
+      automerge: true,
+      automergeType: "pr",
+    },
   ],
 }
