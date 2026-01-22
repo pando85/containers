@@ -56,7 +56,6 @@
       "matchDatasources": ["docker"],
       "matchUpdateTypes": ["digest"],
       "branchPrefix": "renovate/docker-digest-{{depName}}/",
-      "reuseBranch": false,
       "automerge": true,
       "automergeType": "pr"
     },
