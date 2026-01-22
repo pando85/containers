@@ -227,3 +227,32 @@ RUN curl -fsSL https://packages.redis.io/gpg | gpg --dearmor > /usr/share/keyrin
 # yq setup
 RUN curl -fsSL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${TARGETARCH} -o /usr/local/bin/yq \
     && chmod +x /usr/local/bin/yq
+
+# zstd setup
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends liblz4-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && set -eux; \
+    release_tag=$(curl -fsSL https://api.github.com/repos/facebook/zstd/releases/latest | jq -r '.tag_name'); \
+    release_name="zstd-${release_tag#v}"; \
+    download_url="https://github.com/facebook/zstd/releases/download/${release_tag}/${release_name}.tar.gz"; \
+    archive="/tmp/${release_name}.tar.gz"; \
+    checksum_url="${download_url}.sha256"; \
+    curl -fsSL -o "${archive}" "${download_url}"; \
+    curl -fsSL -o "/tmp/${release_name}.tar.gz.sha256" "${checksum_url}"; \
+    expected=$(grep -Eo '^[a-f0-9]{64}' "/tmp/${release_name}.tar.gz.sha256" | head -n1); \
+    if [ -z "$expected" ]; then echo "zstd checksum not found" >&2; exit 1; fi; \
+    echo "${expected}  ${archive}" > /tmp/checksum.txt; \
+    sha256sum -c /tmp/checksum.txt; \
+    tar xzf "${archive}" -C /tmp; \
+    make -C "/tmp/${release_name}/contrib/pzstd" -j"$(nproc)" all; \
+    make -C "/tmp/${release_name}" -j"$(nproc)" zstd-release; \
+    cp "/tmp/${release_name}/programs/zstd" /usr/local/bin/; \
+    cp "/tmp/${release_name}/programs/zstdless" /usr/local/bin/; \
+    cp "/tmp/${release_name}/programs/zstdgrep" /usr/local/bin/; \
+    cp "/tmp/${release_name}/contrib/pzstd/pzstd" /usr/local/bin/; \
+    chmod +x /usr/local/bin/zstd* /usr/local/bin/pzstd || true; \
+    ln -sf /usr/local/bin/zstd /usr/local/bin/zstdcat; \
+    ln -sf /usr/local/bin/zstd /usr/local/bin/zstdmt; \
+    ln -sf /usr/local/bin/zstd /usr/local/bin/unzstd; \
+    rm -rf "/tmp/${release_name}" "${archive}" /tmp/${release_name}.tar.gz.sha256 /tmp/checksum.txt
