@@ -122,6 +122,7 @@ RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /
 # python and pipx setup
 ENV PIPX_BIN_DIR=/opt/pipx_bin
 ENV PIPX_HOME=/opt/pipx
+ENV PATH="${PIPX_BIN_DIR}:${PATH}"
 
 RUN apt-get update \
     && \
@@ -138,6 +139,7 @@ RUN apt-get update \
 # rust setup
 ENV RUSTUP_HOME=/etc/skel/.rustup
 ENV CARGO_HOME=/etc/skel/.cargo
+ENV PATH="$CARGO_HOME/bin:$PATH"
 
 RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --default-toolchain=stable --profile=minimal \
     && . $CARGO_HOME/env \
