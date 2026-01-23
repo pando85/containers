@@ -79,6 +79,7 @@ RUN apt-get update \
         ftp \
         git \
         haveged \
+        just \
         libnss3-tools \
         lz4 \
         m4 \
