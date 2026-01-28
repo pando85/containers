@@ -91,6 +91,7 @@ RUN apt-get update \
         patchelf \
         pigz \
         pollinate \
+        ripgrep \
         rsync \
         shellcheck \
         sphinxsearch \
