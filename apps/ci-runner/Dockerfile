@@ -105,13 +105,15 @@ RUN apt-get update \
         zip \
     && rm -rf /var/lib/apt/lists/*
 
-# docker cli
+# docker
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
     && echo \
         "deb [arch=${TARGETARCH} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
         $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
     && apt-get update \
-    && apt-get install -y --no-install-recommends docker-ce-cli \
+    && apt-get install -y --no-install-recommends \
+        docker-ce \
+        docker-ce-cli \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -pv /usr/libexec/docker/cli-plugins \
     && buildx_url=$(curl -fsSL https://api.github.com/repos/docker/buildx/releases/latest | grep "browser_download_url.*linux.*.${TARGETARCH}\"" | cut -d : -f 2,3 | tr -d \") \
