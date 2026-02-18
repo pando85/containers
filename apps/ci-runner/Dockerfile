@@ -265,7 +265,7 @@ RUN apt-get update \
     rm -rf "/tmp/${release_name}" "${archive}" /tmp/${release_name}.tar.gz.sha256 /tmp/checksum.txt
 
 # generate tool manifest
-COPY generate-manifest.sh /tmp/
+COPY apps/ci-runner/generate-manifest.sh /tmp/
 RUN chmod +x /tmp/generate-manifest.sh \
     && /tmp/generate-manifest.sh > /opt/ci-runner-manifest.json \
     && rm /tmp/generate-manifest.sh
