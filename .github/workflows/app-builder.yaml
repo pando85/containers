@@ -352,6 +352,17 @@ jobs:
           docker cp ci-runner-temp:/opt/ci-runner-manifest.json ./ci-runner-manifest.json
           docker rm ci-runner-temp
 
+      - name: Generate Markdown Tables
+        id: markdown
+        run: |-
+          chmod +x ./apps/ci-runner/manifest-to-markdown.sh
+          ./apps/ci-runner/manifest-to-markdown.sh ./ci-runner-manifest.json > ./manifest-markdown.md
+          {
+            echo 'markdown<<EOF'
+            cat ./manifest-markdown.md
+            echo EOF
+          } >> $GITHUB_OUTPUT
+
       - name: Generate Token
         uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         id: app-token
@@ -365,7 +376,21 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
 
-      - name: Upload Manifest to Release
+      - name: Update Release Notes
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |-
+          CURRENT_BODY=$(gh release view ${{ steps.release.outputs.tag }} --repo ${{ github.repository }} --json body -q '.body' 2>/dev/null || echo "")
+          {
+            echo "$CURRENT_BODY"
+            echo ""
+            echo "---"
+            echo ""
+            cat ./manifest-markdown.md
+          } > ./full-release-notes.md
+          gh release edit ${{ steps.release.outputs.tag }} --repo ${{ github.repository }} --notes-file ./full-release-notes.md
+
+      - name: Upload Manifest JSON
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |-
