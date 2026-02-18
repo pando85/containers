@@ -263,3 +263,9 @@ RUN apt-get update \
     ln -sf /usr/local/bin/zstd /usr/local/bin/zstdmt; \
     ln -sf /usr/local/bin/zstd /usr/local/bin/unzstd; \
     rm -rf "/tmp/${release_name}" "${archive}" /tmp/${release_name}.tar.gz.sha256 /tmp/checksum.txt
+
+# generate tool manifest
+COPY generate-manifest.sh /tmp/
+RUN chmod +x /tmp/generate-manifest.sh \
+    && /tmp/generate-manifest.sh > /opt/ci-runner-manifest.json \
+    && rm /tmp/generate-manifest.sh

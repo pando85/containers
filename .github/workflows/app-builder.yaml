@@ -326,6 +326,51 @@ jobs:
           tag: ${{ steps.release.outputs.tag }}
           token: ${{ steps.app-token.outputs.token }}
 
+  manifest:
+    if: ${{ inputs.release && inputs.app == 'ci-runner' }}
+    name: Manifest
+    needs:
+      - merge
+      - announce
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Extract Manifest
+        run: |-
+          docker create --name ci-runner-temp ghcr.io/${{ github.repository_owner }}/ci-runner@${{ needs.merge.outputs.digest }}
+          docker cp ci-runner-temp:/opt/ci-runner-manifest.json ./ci-runner-manifest.json
+          docker rm ci-runner-temp
+
+      - name: Generate Token
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        id: app-token
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
+
+      - name: Get Release Tag
+        uses: ./.github/actions/release-tag
+        id: release
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Upload Manifest to Release
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |-
+          gh release upload ${{ steps.release.outputs.tag }} ./ci-runner-manifest.json --repo ${{ github.repository }} --clobber
+
   notify:
     if: ${{ inputs.release && !cancelled() }}
     needs:
@@ -334,6 +379,7 @@ jobs:
       - merge
       - attest
       - announce
+      - manifest
     name: Notify
     runs-on: ubuntu-latest
     steps:
