@@ -1,76 +1,128 @@
 {
-  $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  extends: ["github>home-operations/renovate-config"],
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    'github>home-operations/renovate-config',
+  ],
   customManagers: [
     {
-      customType: "regex",
-      description: "Process Annotations in Dockerfiles",
-      managerFilePatterns: ["/(^|/)(Dockerfile|docker-bake\\.hcl)$/"],
-      matchStrings: [
-        "(?<annotation>// renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+).*)\\n\\s*default\\s*=\\s*\"(?<currentValue>[^\"]+)\"",
+      customType: 'regex',
+      description: 'Process Annotations in Dockerfiles',
+      managerFilePatterns: [
+        '/(^|/)(Dockerfile|docker-bake\\.hcl)$/',
       ],
-      datasourceTemplate: "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}",
-      versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
+      matchStrings: [
+        '(?<annotation>// renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+).*)\\n\\s*default\\s*=\\s*"(?<currentValue>[^"]+)"',
+      ],
+      datasourceTemplate: '{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}',
+      versioningTemplate: '{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}',
     },
   ],
   packageRules: [
     {
-      description: ["Release Rules for App Updates"],
-      addLabels: ["app/{{parentDir}}"],
-      additionalBranchPrefix: "{{parentDir}}-",
-      commitMessageExtra: "( {{currentVersion}} → {{newVersion}} )",
-      commitMessageTopic: "{{depName}}",
-      matchFileNames: ["**/docker-bake.hcl", "**/Dockerfile"],
-      semanticCommitScope: "{{parentDir}}",
-      semanticCommitType: "release",
+      description: [
+        'Release Rules for App Updates',
+      ],
+      addLabels: [
+        'app/{{parentDir}}',
+      ],
+      additionalBranchPrefix: '{{parentDir}}-',
+      commitMessageExtra: '( {{currentVersion}} → {{newVersion}} )',
+      commitMessageTopic: '{{depName}}',
+      matchFileNames: [
+        '**/docker-bake.hcl',
+        '**/Dockerfile',
+      ],
+      semanticCommitScope: '{{parentDir}}',
+      semanticCommitType: 'release',
     },
     {
-      description: ["Auto-merge App Updates"],
-      matchFileNames: ["**/docker-bake.hcl"],
+      description: [
+        'Auto-merge App Updates',
+      ],
+      matchFileNames: [
+        '**/docker-bake.hcl',
+      ],
       automerge: true,
-      automergeType: "pr",
+      automergeType: 'pr',
       ignoreTests: false,
     },
     {
-      description: ["Allowed Ubuntu Version for Base Images"],
-      matchDatasources: ["docker"],
-      matchPackageNames: ["/ubuntu/"],
-        allowedVersions: "/24\\.04|noble(-[0-9]+)?/",
+      description: [
+        'Allowed Ubuntu Version for Base Images',
+      ],
+      matchDatasources: [
+        'docker',
+      ],
+      matchPackageNames: [
+        '/ubuntu/',
+      ],
+      allowedVersions: '/24\\.04|noble(-[0-9]+)?/',
     },
     {
-      description: ["Allowed Alpine Version for Base Images"],
-      matchDatasources: ["docker"],
-      matchFileNames: ["**/Dockerfile"],
-      matchPackageNames: ["/alpine/"],
-      allowedVersions: "/3\\.23/",
+      description: [
+        'Allowed Alpine Version for Base Images',
+      ],
+      matchDatasources: [
+        'docker',
+      ],
+      matchFileNames: [
+        '**/Dockerfile',
+      ],
+      matchPackageNames: [
+        '/alpine/',
+      ],
+      allowedVersions: '/3\\.23/',
     },
     {
-      description: ["Allowed Python Version for Base Images"],
-      matchDatasources: ["docker"],
-      matchFileNames: ["**/Dockerfile"],
-      matchPackageNames: ["/python/"],
-      allowedVersions: "/3\\.13-alpine3\\.23/",
+      description: [
+        'Allowed Python Version for Base Images',
+      ],
+      matchDatasources: [
+        'docker',
+      ],
+      matchFileNames: [
+        '**/Dockerfile',
+      ],
+      matchPackageNames: [
+        '/python/',
+      ],
+      allowedVersions: '/3\\.13-alpine3\\.23/',
     },
     {
-      "description": ["Automerge Docker digest updates"],
-      "matchDatasources": ["docker"],
-      "matchUpdateTypes": ["digest"],
-      "branchPrefix": "renovate/docker-digest-{{depName}}/",
-      "automerge": true,
-      "automergeType": "pr"
+      description: [
+        'Automerge Docker digest updates',
+      ],
+      matchDatasources: [
+        'docker',
+      ],
+      matchUpdateTypes: [
+        'digest',
+      ],
+      branchPrefix: 'renovate/docker-digest-',
+      additionalBranchPrefix: '{{depName}}/',
+      automerge: true,
+      automergeType: 'pr',
     },
     {
-      matchUpdateTypes: ["digest"],
-      semanticCommitType: "chore",
-      commitMessageExtra: "({{newDigestShort}})",
+      matchUpdateTypes: [
+        'digest',
+      ],
+      semanticCommitType: 'chore',
+      commitMessageExtra: '({{newDigestShort}})',
     },
     {
-      description: ["Auto-merge ghcr.io/pando85/ci-runner updates"],
-      matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/pando85/ci-runner"],
+      description: [
+        'Auto-merge ghcr.io/pando85/ci-runner updates',
+      ],
+      matchDatasources: [
+        'docker',
+      ],
+      matchPackageNames: [
+        'ghcr.io/pando85/ci-runner',
+      ],
       pinDigests: true,
       automerge: true,
-      automergeType: "pr",
+      automergeType: 'pr',
     },
   ],
 }
