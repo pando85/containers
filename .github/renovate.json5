@@ -3,6 +3,7 @@
   extends: [
     'github>home-operations/renovate-config',
   ],
+  automergeType: 'pr',
   customManagers: [
     {
       customType: 'regex',
