@@ -3,6 +3,9 @@
 ARG VERSION
 FROM ubuntu:${VERSION}
 ARG TARGETARCH
+ARG VERSION
+
+LABEL org.opencontainers.image.version="${VERSION}"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
