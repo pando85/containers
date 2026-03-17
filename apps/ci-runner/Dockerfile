@@ -228,11 +228,19 @@ RUN curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmo
     && rm -rf /var/lib/apt/lists/*
 
 # redis setup
-RUN curl -fsSL https://packages.redis.io/gpg | gpg --dearmor > /usr/share/keyrings/redis-archive-keyring.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" > /etc/apt/sources.list.d/redis.list \
-    && apt-get update \
-    && apt-get install -y redis-server \
-    && rm -rf /var/lib/apt/lists/*
+RUN set -eux; \
+    for i in 1 2 3 4 5; do \
+        if curl -fsSL --connect-timeout 30 --max-time 60 https://packages.redis.io/gpg | gpg --batch --dearmor > /usr/share/keyrings/redis-archive-keyring.gpg 2>/dev/null; then \
+            break; \
+        fi; \
+        echo "Retry $i/5..."; \
+        sleep 5; \
+    done; \
+    test -s /usr/share/keyrings/redis-archive-keyring.gpg; \
+    echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" > /etc/apt/sources.list.d/redis.list; \
+    apt-get update; \
+    apt-get install -y redis-server; \
+    rm -rf /var/lib/apt/lists/*
 
 # yq setup
 RUN curl -fsSL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${TARGETARCH} -o /usr/local/bin/yq \
