@@ -9,14 +9,26 @@ LABEL org.opencontainers.image.version="${VERSION}"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        lsb-release \
-    && rm -rf /var/lib/apt/lists/*
+RUN set -eux; \
+    for i in 1 2 3 4 5; do \
+        if apt-get update; then \
+            break; \
+        fi; \
+        echo "apt-get update retry $i/5..."; \
+        sleep $((i * 5)); \
+    done; \
+    apt-get install -y --no-install-recommends lsb-release; \
+    rm -rf /var/lib/apt/lists/*
 
 # vital packages
-RUN apt-get update \
-    && \
+RUN set -eux; \
+    for i in 1 2 3 4 5; do \
+        if apt-get update; then \
+            break; \
+        fi; \
+        echo "apt-get update retry $i/5..."; \
+        sleep $((i * 5)); \
+    done; \
     apt-get install -y --no-install-recommends \
         ca-certificates \
         bzip2 \
@@ -27,12 +39,18 @@ RUN apt-get update \
         jq \
         tar \
         unzip \
-        wget \
-    && rm -rf /var/lib/apt/lists/*
+        wget; \
+    rm -rf /var/lib/apt/lists/*
 
 # common packages
-RUN apt-get update \
-    && \
+RUN set -eux; \
+    for i in 1 2 3 4 5; do \
+        if apt-get update; then \
+            break; \
+        fi; \
+        echo "apt-get update retry $i/5..."; \
+        sleep $((i * 5)); \
+    done; \
     apt-get install -y --no-install-recommends \
         autoconf \
         automake \
@@ -63,12 +81,18 @@ RUN apt-get update \
         upx \
         xvfb \
         xz-utils \
-        zsync \
-    && rm -rf /var/lib/apt/lists/*
+        zsync; \
+    rm -rf /var/lib/apt/lists/*
 
 # cmd packages
-RUN apt-get update \
-    && \
+RUN set -eux; \
+    for i in 1 2 3 4 5; do \
+        if apt-get update; then \
+            break; \
+        fi; \
+        echo "apt-get update retry $i/5..."; \
+        sleep $((i * 5)); \
+    done; \
     apt-get install -y --no-install-recommends \
         acl \
         aria2 \
@@ -105,43 +129,56 @@ RUN apt-get update \
         swig \
         telnet \
         time \
-        zip \
-    && rm -rf /var/lib/apt/lists/*
+        zip; \
+    rm -rf /var/lib/apt/lists/*
 
 # docker
-RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
-    && echo \
+RUN set -eux; \
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg; \
+    echo \
         "deb [arch=${TARGETARCH} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-        $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends \
+        $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null; \
+    for i in 1 2 3 4 5; do \
+        if apt-get update; then \
+            break; \
+        fi; \
+        echo "apt-get update retry $i/5..."; \
+        sleep $((i * 5)); \
+    done; \
+    apt-get install -y --no-install-recommends \
         docker-ce \
-        docker-ce-cli \
-    && rm -rf /var/lib/apt/lists/* \
-    && mkdir -pv /usr/libexec/docker/cli-plugins \
-    && buildx_url=$(curl -fsSL https://api.github.com/repos/docker/buildx/releases/latest | grep "browser_download_url.*linux.*.${TARGETARCH}\"" | cut -d : -f 2,3 | tr -d \") \
-    && curl -fsSL ${buildx_url} -o /usr/libexec/docker/cli-plugins/docker-buildx \
-    && chmod +x /usr/libexec/docker/cli-plugins/docker-buildx \
-    && arch=$([ "$TARGETARCH" = "amd64" ] && echo "x86_64" || ([ "$TARGETARCH" = "arm64" ] && echo "aarch64" || echo "$TARGETARCH")) \
-    && curl -fsSL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-${arch} -o /usr/libexec/docker/cli-plugins/docker-compose \
-    && chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+        docker-ce-cli; \
+    rm -rf /var/lib/apt/lists/*; \
+    mkdir -pv /usr/libexec/docker/cli-plugins; \
+    buildx_url=$(curl -fsSL https://api.github.com/repos/docker/buildx/releases/latest | grep "browser_download_url.*linux.*.${TARGETARCH}\"" | cut -d : -f 2,3 | tr -d \"); \
+    curl -fsSL ${buildx_url} -o /usr/libexec/docker/cli-plugins/docker-buildx; \
+    chmod +x /usr/libexec/docker/cli-plugins/docker-buildx; \
+    arch=$([ "$TARGETARCH" = "amd64" ] && echo "x86_64" || ([ "$TARGETARCH" = "arm64" ] && echo "aarch64" || echo "$TARGETARCH")); \
+    curl -fsSL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-${arch} -o /usr/libexec/docker/cli-plugins/docker-compose; \
+    chmod +x /usr/libexec/docker/cli-plugins/docker-compose
 
 # python and pipx setup
 ENV PIPX_BIN_DIR=/opt/pipx_bin
 ENV PIPX_HOME=/opt/pipx
 ENV PATH="${PIPX_BIN_DIR}:${PATH}"
 
-RUN apt-get update \
-    && \
+RUN set -eux; \
+    for i in 1 2 3 4 5; do \
+        if apt-get update; then \
+            break; \
+        fi; \
+        echo "apt-get update retry $i/5..."; \
+        sleep $((i * 5)); \
+    done; \
     apt-get install -y --no-install-recommends \
         python3-dev \
         python3-pip \
-        python3-venv \
-    && rm -rf /var/lib/apt/lists/* \
-    && echo '[global]' > /etc/pip.conf \
-    && echo 'break-system-packages = true' >> /etc/pip.conf \
-    && python3 -m pip install pipx \
-    && python3 -m pipx ensurepath
+        python3-venv; \
+    rm -rf /var/lib/apt/lists/*; \
+    echo '[global]' > /etc/pip.conf; \
+    echo 'break-system-packages = true' >> /etc/pip.conf; \
+    python3 -m pip install pipx; \
+    python3 -m pipx ensurepath
 
 # rust setup
 ENV RUSTUP_HOME=/usr/share/rust/.rustup
@@ -176,56 +213,73 @@ RUN curl -fsSL https://raw.githubusercontent.com/tj/n/master/bin/n -o /tmp/n \
     && rm -rf /tmp/n
 
 # go setup
-RUN curl -fsSL 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x876b22ba887ca91614b5323fc631127f87fa12d1' \
-        | gpg --dearmor -o /usr/share/keyrings/golang-backports-keyring.gpg \
-    && echo \
+RUN set -eux; \
+    curl -fsSL 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x876b22ba887ca91614b5323fc631127f87fa12d1' \
+        | gpg --dearmor -o /usr/share/keyrings/golang-backports-keyring.gpg; \
+    echo \
         "deb [arch=${TARGETARCH} signed-by=/usr/share/keyrings/golang-backports-keyring.gpg] http://ppa.launchpad.net/longsleep/golang-backports/ubuntu \
-        $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/golang-backports.list > /dev/null \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends golang-go \
-    && rm -rf /var/lib/apt/lists/*
+        $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/golang-backports.list > /dev/null; \
+    for i in 1 2 3 4 5; do \
+        if apt-get update; then \
+            break; \
+        fi; \
+        echo "apt-get update retry $i/5..."; \
+        sleep $((i * 5)); \
+    done; \
+    apt-get install -y --no-install-recommends golang-go; \
+    rm -rf /var/lib/apt/lists/*
 
 # clang setup
-RUN apt-get update \
-    && \
+RUN set -eux; \
+    for i in 1 2 3 4 5; do \
+        if apt-get update; then \
+            break; \
+        fi; \
+        echo "apt-get update retry $i/5..."; \
+        sleep $((i * 5)); \
+    done; \
     apt-get install -y --no-install-recommends \
         clang \
         clang-format \
         lld \
-        lldb \
-    && rm -rf /var/lib/apt/lists/*
+        lldb; \
+    rm -rf /var/lib/apt/lists/*
 
 # k8s tools setup
-RUN \
-    # Install KIND
-    curl -fsSL https://github.com/kubernetes-sigs/kind/releases/latest/download/kind-linux-${TARGETARCH} -o /usr/local/bin/kind \
-    && chmod +x /usr/local/bin/kind \
-    && \
-    # Install kubectl
-    mkdir -p /etc/apt/keyrings \
-    && kubectl_minor_version=$(curl -fsSL https://dl.k8s.io/release/stable.txt | cut -d'.' -f1,2) \
-    && curl -fsSL https://pkgs.k8s.io/core:/stable:/$kubectl_minor_version/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg \
-    && echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg arch=${TARGETARCH}] https://pkgs.k8s.io/core:/stable:/$kubectl_minor_version/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list \
-    && apt-get update \
-    && apt-get install -y kubectl \
-    && \
-    # Install Helm
-    curl -fsSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash \
-    && \
-    # Install minikube
-    curl -fsSL https://storage.googleapis.com/minikube/releases/latest/minikube-linux-${TARGETARCH} -o /usr/local/bin/minikube \
-    && chmod +x /usr/local/bin/minikube \
-    && \
-    # Install kustomize
-    curl -fsSL https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh | bash \
-    && mv kustomize /usr/local/bin
+RUN set -eux; \
+    curl -fsSL https://github.com/kubernetes-sigs/kind/releases/latest/download/kind-linux-${TARGETARCH} -o /usr/local/bin/kind; \
+    chmod +x /usr/local/bin/kind; \
+    mkdir -p /etc/apt/keyrings; \
+    kubectl_minor_version=$(curl -fsSL https://dl.k8s.io/release/stable.txt | cut -d'.' -f1,2); \
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/$kubectl_minor_version/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg; \
+    echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg arch=${TARGETARCH}] https://pkgs.k8s.io/core:/stable:/$kubectl_minor_version/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list; \
+    for i in 1 2 3 4 5; do \
+        if apt-get update; then \
+            break; \
+        fi; \
+        echo "apt-get update retry $i/5..."; \
+        sleep $((i * 5)); \
+    done; \
+    apt-get install -y kubectl; \
+    curl -fsSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash; \
+    curl -fsSL https://storage.googleapis.com/minikube/releases/latest/minikube-linux-${TARGETARCH} -o /usr/local/bin/minikube; \
+    chmod +x /usr/local/bin/minikube; \
+    curl -fsSL https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh | bash; \
+    mv kustomize /usr/local/bin
 
 # postgres setup
-RUN curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
-    && apt-get update \
-    && apt-get install -y postgresql-16 libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+RUN set -eux; \
+    curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql.gpg; \
+    echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list; \
+    for i in 1 2 3 4 5; do \
+        if apt-get update; then \
+            break; \
+        fi; \
+        echo "apt-get update retry $i/5..."; \
+        sleep $((i * 5)); \
+    done; \
+    apt-get install -y postgresql-16 libpq-dev; \
+    rm -rf /var/lib/apt/lists/*
 
 # redis setup
 RUN set -eux; \
@@ -233,12 +287,18 @@ RUN set -eux; \
         if curl -fsSL --connect-timeout 30 --max-time 60 https://packages.redis.io/gpg | gpg --batch --dearmor > /usr/share/keyrings/redis-archive-keyring.gpg 2>/dev/null; then \
             break; \
         fi; \
-        echo "Retry $i/5..."; \
+        echo "GPG key retry $i/5..."; \
         sleep 5; \
     done; \
     test -s /usr/share/keyrings/redis-archive-keyring.gpg; \
     echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" > /etc/apt/sources.list.d/redis.list; \
-    apt-get update; \
+    for i in 1 2 3 4 5; do \
+        if apt-get update; then \
+            break; \
+        fi; \
+        echo "apt-get update retry $i/5..."; \
+        sleep $((i * 5)); \
+    done; \
     apt-get install -y redis-server; \
     rm -rf /var/lib/apt/lists/*
 
@@ -247,10 +307,16 @@ RUN curl -fsSL https://github.com/mikefarah/yq/releases/latest/download/yq_linux
     && chmod +x /usr/local/bin/yq
 
 # zstd setup
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends liblz4-dev \
-    && rm -rf /var/lib/apt/lists/* \
-    && set -eux; \
+RUN set -eux; \
+    for i in 1 2 3 4 5; do \
+        if apt-get update; then \
+            break; \
+        fi; \
+        echo "apt-get update retry $i/5..."; \
+        sleep $((i * 5)); \
+    done; \
+    apt-get install -y --no-install-recommends liblz4-dev; \
+    rm -rf /var/lib/apt/lists/*; \
     release_tag=$(curl -fsSL https://api.github.com/repos/facebook/zstd/releases/latest | jq -r '.tag_name'); \
     release_name="zstd-${release_tag#v}"; \
     download_url="https://github.com/facebook/zstd/releases/download/${release_tag}/${release_name}.tar.gz"; \
