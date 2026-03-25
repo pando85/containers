@@ -113,6 +113,17 @@
     },
     {
       description: [
+        'Override automerge type for GitHub Actions',
+      ],
+      matchManagers: [
+        'github-actions',
+      ],
+      automerge: true,
+      automergeType: 'pr',
+      ignoreTests: true,
+    },
+    {
+      description: [
         'Auto-merge ghcr.io/pando85/ci-runner updates',
       ],
       matchDatasources: [
