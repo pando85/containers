@@ -1,9 +1,14 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
   extends: [
-    'github>home-operations/renovate-config',
+    'config:recommended',
+    'docker:enableMajor',
+    'helpers:pinGitHubActionDigests',
+    ':automergePr',
+    ':dependencyDashboard',
+    ':disableRateLimiting',
   ],
-  automergeType: 'pr',
+  dependencyDashboardTitle: 'Renovate Dashboard',
   customManagers: [
     {
       customType: 'regex',
@@ -20,9 +25,7 @@
   ],
   packageRules: [
     {
-      description: [
-        'Release Rules for App Updates',
-      ],
+      description: 'Release Rules for App Updates',
       addLabels: [
         'app/{{parentDir}}',
       ],
@@ -37,9 +40,7 @@
       semanticCommitType: 'release',
     },
     {
-      description: [
-        'Auto-merge App Updates',
-      ],
+      description: 'Auto-merge App Updates',
       matchFileNames: [
         '**/docker-bake.hcl',
       ],
@@ -48,9 +49,7 @@
       ignoreTests: false,
     },
     {
-      description: [
-        'Allowed Ubuntu Version for Base Images',
-      ],
+      description: 'Allowed Ubuntu Version for Base Images',
       matchDatasources: [
         'docker',
       ],
@@ -60,9 +59,7 @@
       allowedVersions: '/24\\.04|noble(-[0-9]+)?/',
     },
     {
-      description: [
-        'Allowed Alpine Version for Base Images',
-      ],
+      description: 'Allowed Alpine Version for Base Images',
       matchDatasources: [
         'docker',
       ],
@@ -75,9 +72,7 @@
       allowedVersions: '/3\\.23/',
     },
     {
-      description: [
-        'Allowed Python Version for Base Images',
-      ],
+      description: 'Allowed Python Version for Base Images',
       matchDatasources: [
         'docker',
       ],
@@ -90,9 +85,7 @@
       allowedVersions: '/3\\.13-alpine3\\.23/',
     },
     {
-      description: [
-        'Automerge Docker digest updates',
-      ],
+      description: 'Automerge Docker digest updates',
       matchDatasources: [
         'docker',
       ],
@@ -105,27 +98,108 @@
       automergeType: 'pr',
     },
     {
+      description: 'Digest update commit message',
       matchUpdateTypes: [
         'digest',
       ],
       semanticCommitType: 'chore',
-      commitMessageExtra: '({{newDigestShort}})',
+      commitMessageExtra: '({{currentDigestShort}} → {{newDigestShort}})',
+      labels: [
+        'type/digest',
+      ],
     },
     {
-      description: [
-        'Override automerge type for GitHub Actions',
+      description: 'Label major updates',
+      matchUpdateTypes: [
+        'major',
       ],
+      labels: [
+        'type/major',
+      ],
+      semanticCommitType: 'feat',
+      commitMessagePrefix: '{{semanticCommitType}}({{semanticCommitScope}})!:',
+      commitMessageExtra: '({{currentVersion}} → {{newVersion}})',
+    },
+    {
+      description: 'Label minor updates',
+      matchUpdateTypes: [
+        'minor',
+      ],
+      labels: [
+        'type/minor',
+      ],
+      semanticCommitType: 'feat',
+      commitMessageExtra: '({{currentVersion}} → {{newVersion}})',
+    },
+    {
+      description: 'Label patch updates',
+      matchUpdateTypes: [
+        'patch',
+      ],
+      labels: [
+        'type/patch',
+      ],
+      semanticCommitType: 'fix',
+      commitMessageExtra: '({{currentVersion}} → {{newVersion}})',
+    },
+    {
+      description: 'Auto-merge GitHub Actions',
       matchManagers: [
         'github-actions',
       ],
       automerge: true,
       automergeType: 'pr',
+      matchUpdateTypes: [
+        'minor',
+        'patch',
+        'digest',
+      ],
+      minimumReleaseAge: '3 days',
+      ignoreTests: true,
+      semanticCommitType: 'ci',
+      semanticCommitScope: 'github-action',
+      commitMessageTopic: 'action {{depName}}',
+    },
+    {
+      description: 'Auto-merge trusted GitHub Actions',
+      matchManagers: [
+        'github-actions',
+      ],
+      matchPackageNames: [
+        '/^actions\\//',
+        '/^anchore\\//',
+        '/^docker\\//',
+        '/^renovatebot\\//',
+        '/^sigstore\\//',
+      ],
+      automerge: true,
+      automergeType: 'pr',
+      matchUpdateTypes: [
+        'minor',
+        'patch',
+        'digest',
+      ],
+      minimumReleaseAge: '1 minute',
       ignoreTests: true,
     },
     {
-      description: [
-        'Auto-merge ghcr.io/pando85/ci-runner updates',
+      description: 'Docker image commit message',
+      matchDatasources: [
+        'docker',
       ],
+      semanticCommitScope: 'container',
+      commitMessageTopic: 'image {{depName}}',
+    },
+    {
+      description: 'GitHub releases commit message',
+      matchDatasources: [
+        'github-releases',
+      ],
+      semanticCommitScope: 'github-release',
+      commitMessageTopic: 'release {{depName}}',
+    },
+    {
+      description: 'Auto-merge ghcr.io/pando85/ci-runner updates',
       matchDatasources: [
         'docker',
       ],
