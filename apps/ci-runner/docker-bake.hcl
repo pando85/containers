@@ -13,6 +13,10 @@ variable "SOURCE" {
   default = "https://github.com/pando85/containers/tree/main/apps/${APP}"
 }
 
+variable "TRIGGERS" {
+  default = "forgejo-runner"
+}
+
 group "default" {
   targets = ["image-local"]
 }

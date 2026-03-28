@@ -21,6 +21,7 @@ jobs:
     outputs:
       app-exists: ${{ steps.app-exists.outputs.exists }}
       platforms: ${{ steps.app-options.outputs.platforms }}
+      triggers: ${{ steps.app-options.outputs.triggers }}
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -279,12 +280,14 @@ jobs:
           message: |
             ${{ steps.app-size-diff.outputs.size-diff-markdown }}
 
-  announce:
-    if: ${{ inputs.release && needs.plan.outputs.app-exists != 'true' }}
-    name: Announce
+  create-release:
+    if: ${{ inputs.release }}
+    name: Create Release
     needs:
       - plan
       - attest
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -316,12 +319,13 @@ jobs:
         with:
           body: |
             > [!NOTE]
-            > A new app has been added.
+            > ${{ needs.plan.outputs.app-exists != 'true' && 'A new app has been added.' || 'A new version has been released.' }}
 
             ## 📦 App
 
             **Name**: [${{ inputs.app }}](https://github.com/${{ github.repository }}/pkgs/container/${{ inputs.app }})
             **Source**: <${{ steps.app-options.outputs.source }}>
+            **Version**: `${{ steps.app-options.outputs.version }}`
           tag: ${{ steps.release.outputs.tag }}
           token: ${{ steps.app-token.outputs.token }}
 
@@ -330,7 +334,7 @@ jobs:
     name: Manifest
     needs:
       - merge
-      - announce
+      - create-release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -395,6 +399,37 @@ jobs:
         run: |-
           gh release upload ${{ steps.release.outputs.tag }} ./ci-runner-manifest.json --repo ${{ github.repository }} --clobber
 
+  cascade:
+    if: ${{ inputs.release && needs.plan.outputs.triggers != '' }}
+    name: Cascade Build
+    needs:
+      - plan
+      - create-release
+      - manifest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Generate Token
+        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        id: app-token
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
+
+      - name: Trigger Dependent App Build
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          TRIGGERS: ${{ needs.plan.outputs.triggers }}
+        run: |-
+          gh workflow run release.yaml \
+            --repo ${{ github.repository }} \
+            -f app="${TRIGGERS}" \
+            -f release=true
+
   notify:
     if: ${{ inputs.release && !cancelled() }}
     needs:
@@ -402,8 +437,9 @@ jobs:
       - build
       - merge
       - attest
-      - announce
+      - create-release
       - manifest
+      - cascade
     name: Notify
     runs-on: ubuntu-latest
     steps:
