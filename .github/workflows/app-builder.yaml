@@ -373,17 +373,11 @@ jobs:
           app-id: ${{ secrets.BOT_APP_ID }}
           private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
 
-      - name: Get Release Tag
-        uses: ./.github/actions/release-tag
-        id: release
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-
       - name: Update Release Notes
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |-
-          CURRENT_BODY=$(gh release view ${{ steps.release.outputs.tag }} --repo ${{ github.repository }} --json body -q '.body' 2>/dev/null || echo "")
+          CURRENT_BODY=$(gh release view ${{ needs.create-release.outputs.tag }} --repo ${{ github.repository }} --json body -q '.body' 2>/dev/null || echo "")
           {
             echo "$CURRENT_BODY"
             echo ""
@@ -391,13 +385,13 @@ jobs:
             echo ""
             cat ./manifest-markdown.md
           } > ./full-release-notes.md
-          gh release edit ${{ steps.release.outputs.tag }} --repo ${{ github.repository }} --notes-file ./full-release-notes.md
+          gh release edit ${{ needs.create-release.outputs.tag }} --repo ${{ github.repository }} --notes-file ./full-release-notes.md
 
       - name: Upload Manifest JSON
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |-
-          gh release upload ${{ steps.release.outputs.tag }} ./ci-runner-manifest.json --repo ${{ github.repository }} --clobber
+          gh release upload ${{ needs.create-release.outputs.tag }} ./ci-runner-manifest.json --repo ${{ github.repository }} --clobber
 
   cascade:
     if: ${{ inputs.release && needs.plan.outputs.triggers != '' }}
