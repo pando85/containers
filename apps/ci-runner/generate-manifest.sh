@@ -132,6 +132,7 @@ generate_manifest() {
         "parcel"
         "pnpm"
         "typescript"
+        "vercel"
         "webpack"
         "webpack-cli"
         "yarn"
@@ -204,7 +205,7 @@ generate_manifest() {
     echo ","
     
     local kubectl_version
-    kubectl_version=$(kubectl version --client --short 2>/dev/null | awk '{print $3}' | sed 's/v//' || kubectl version --client 2>/dev/null | grep -oP 'GitVersion:"v\K[^"]+' || echo "not_installed")
+    kubectl_version=$(kubectl version --client -o json 2>/dev/null | grep -oP '"gitVersion":\s*"v\K[0-9.]+' || echo "not_installed")
     printf "    \"kubectl\": \"%s\"" "$kubectl_version"
     echo ","
     
@@ -219,7 +220,7 @@ generate_manifest() {
     echo ","
     
     local kustomize_version
-    kustomize_version=$(kustomize version --short 2>/dev/null | sed 's/v//' || echo "not_installed")
+    kustomize_version=$(kustomize version 2>/dev/null | grep -oP 'v?\K[0-9]+\.[0-9]+\.[0-9]+' || echo "not_installed")
     printf "    \"kustomize\": \"%s\"" "$kustomize_version"
     echo ","
     
@@ -234,7 +235,7 @@ generate_manifest() {
     echo ","
     
     local pipx_version
-    pipx_version=$(pipx --version 2>/dev/null | awk '{print $3}' || echo "not_installed")
+    pipx_version=$(pipx --version 2>/dev/null | tr -d ' ' || echo "not_installed")
     printf "    \"pipx\": \"%s\"" "$pipx_version"
     
     echo ""

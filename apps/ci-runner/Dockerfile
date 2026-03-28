@@ -167,6 +167,7 @@ RUN curl -fsSL https://raw.githubusercontent.com/tj/n/master/bin/n -o /tmp/n \
         parcel \
         pnpm \
         typescript \
+        vercel \
         webpack \
         webpack-cli \
         yarn \
