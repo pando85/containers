@@ -393,37 +393,6 @@ jobs:
         run: |-
           gh release upload ${{ needs.create-release.outputs.tag }} ./ci-runner-manifest.json --repo ${{ github.repository }} --clobber
 
-  cascade:
-    if: ${{ inputs.release && needs.plan.outputs.triggers != '' }}
-    name: Cascade Build
-    needs:
-      - plan
-      - create-release
-      - manifest
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Generate Token
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
-        id: app-token
-        with:
-          app-id: ${{ secrets.BOT_APP_ID }}
-          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
-
-      - name: Trigger Dependent App Build
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          TRIGGERS: ${{ needs.plan.outputs.triggers }}
-        run: |-
-          gh workflow run release.yaml \
-            --repo ${{ github.repository }} \
-            -f app="${TRIGGERS}" \
-            -f release=true
-
   notify:
     if: ${{ inputs.release && !cancelled() }}
     needs:
@@ -433,7 +402,6 @@ jobs:
       - attest
       - create-release
       - manifest
-      - cascade
     name: Notify
     runs-on: ubuntu-latest
     steps:
