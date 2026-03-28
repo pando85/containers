@@ -188,61 +188,77 @@ generate_manifest() {
 
     echo "  \"binaries\": {"
 
+    echo "    \"docker_kubernetes\": {"
+
     local docker_buildx_version
     docker_buildx_version=$(docker buildx version 2>/dev/null | awk '{print $2}' || echo "not_installed")
-    printf "    \"docker-buildx\": \"%s\"" "$docker_buildx_version"
+    printf "      \"docker-buildx\": \"%s\"" "$docker_buildx_version"
     echo ","
 
     local docker_compose_version
     docker_compose_version=$(docker compose version 2>/dev/null | awk '{print $4}' | tr -d 'v' || echo "not_installed")
-    printf "    \"docker-compose\": \"%s\"" "$docker_compose_version"
+    printf "      \"docker-compose\": \"%s\"" "$docker_compose_version"
     echo ","
 
     local kind_version
     kind_version=$(kind version 2>/dev/null | awk '{print $2}' | sed 's/v//' || echo "not_installed")
-    printf "    \"kind\": \"%s\"" "$kind_version"
+    printf "      \"kind\": \"%s\"" "$kind_version"
     echo ","
 
     local kubectl_version
     kubectl_version=$(kubectl version --client -o json 2>/dev/null | grep -oP '"gitVersion":\s*"v\K[0-9.]+' || echo "not_installed")
-    printf "    \"kubectl\": \"%s\"" "$kubectl_version"
+    printf "      \"kubectl\": \"%s\"" "$kubectl_version"
     echo ","
 
     local helm_version
     helm_version=$(helm version --short 2>/dev/null | sed 's/v//' || echo "not_installed")
-    printf "    \"helm\": \"%s\"" "$helm_version"
+    printf "      \"helm\": \"%s\"" "$helm_version"
     echo ","
 
     local minikube_version
     minikube_version=$(minikube version --short 2>/dev/null | sed 's/v//' || echo "not_installed")
-    printf "    \"minikube\": \"%s\"" "$minikube_version"
+    printf "      \"minikube\": \"%s\"" "$minikube_version"
     echo ","
 
     local kustomize_version
     kustomize_version=$(kustomize version 2>/dev/null | grep -oP 'v?\K[0-9]+\.[0-9]+\.[0-9]+' || echo "not_installed")
-    printf "    \"kustomize\": \"%s\"" "$kustomize_version"
-    echo ","
+    printf "      \"kustomize\": \"%s\"" "$kustomize_version"
 
-    local yq_version
-    yq_version=$(yq --version 2>/dev/null | grep -oP 'version v\K[0-9.]+' || echo "not_installed")
-    printf "    \"yq\": \"%s\"" "$yq_version"
+    echo ""
+    echo "    },"
+
+    echo "    \"compression\": {"
+
+    local upx_version
+    upx_version=$(upx --version 2>/dev/null | head -n1 | awk '{print $2}' || echo "not_installed")
+    printf "      \"upx\": \"%s\"" "$upx_version"
     echo ","
 
     local zstd_version
     zstd_version=$(zstd --version 2>/dev/null | grep -oP 'v\K[0-9.]+' || echo "not_installed")
-    printf "    \"zstd\": \"%s\"" "$zstd_version"
-    echo ","
+    printf "      \"zstd\": \"%s\"" "$zstd_version"
 
-    local upx_version
-    upx_version=$(upx --version 2>/dev/null | head -n1 | awk '{print $2}' || echo "not_installed")
-    printf "    \"upx\": \"%s\"" "$upx_version"
-    echo ","
+    echo ""
+    echo "    },"
+
+    echo "    \"cli_tools\": {"
+
+    local yq_version
+    yq_version=$(yq --version 2>/dev/null | grep -oP 'version v\K[0-9.]+' || echo "not_installed")
+    printf "      \"yq\": \"%s\"" "$yq_version"
+
+    echo ""
+    echo "    },"
+
+    echo "    \"python_tools\": {"
 
     local pipx_version
     pipx_version=$(pipx --version 2>/dev/null | tr -d ' ' || echo "not_installed")
-    printf "    \"pipx\": \"%s\"" "$pipx_version"
+    printf "      \"pipx\": \"%s\"" "$pipx_version"
 
     echo ""
+    echo "    }"
+
     echo "  }"
     echo "}"
 }
