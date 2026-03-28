@@ -4,16 +4,16 @@ set -euo pipefail
 generate_manifest() {
     local ubuntu_version
     ubuntu_version=$(lsb_release -d | cut -d$'\t' -f2)
-    
+
     local generated_at
     generated_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    
+
     echo "{"
     echo "  \"generated_at\": \"${generated_at}\","
     echo "  \"ubuntu_version\": \"${ubuntu_version}\","
-    
+
     echo "  \"apt_packages\": {"
-    
+
     local apt_packages=(
         "ca-certificates"
         "bzip2"
@@ -51,7 +51,6 @@ generate_manifest() {
         "tk"
         "tree"
         "tzdata"
-        "upx"
         "xvfb"
         "xz-utils"
         "zsync"
@@ -106,7 +105,7 @@ generate_manifest() {
         "redis-server"
         "kubectl"
     )
-    
+
     local first=true
     for pkg in "${apt_packages[@]}"; do
         local version
@@ -120,7 +119,7 @@ generate_manifest() {
     done
     echo ""
     echo "  },"
-    
+
     echo "  \"npm_packages\": {"
     local npm_packages=(
         "bun"
@@ -137,7 +136,7 @@ generate_manifest() {
         "webpack-cli"
         "yarn"
     )
-    
+
     first=true
     for pkg in "${npm_packages[@]}"; do
         local version
@@ -154,7 +153,7 @@ generate_manifest() {
     done
     echo ""
     echo "  },"
-    
+
     echo "  \"rust\": {"
     local rust_toolchain rustc_version cargo_version
     rust_toolchain=$(rustup show active-toolchain 2>/dev/null || echo "not_installed")
@@ -164,13 +163,13 @@ generate_manifest() {
     echo "    \"rustc\": \"${rustc_version}\","
     echo "    \"cargo\": \"${cargo_version}\""
     echo "  },"
-    
+
     echo "  \"go\": {"
     local go_version
     go_version=$(go version 2>/dev/null | awk '{print $3}' | sed 's/go//' || echo "not_installed")
     echo "    \"version\": \"${go_version}\""
     echo "  },"
-    
+
     echo "  \"nodejs\": {"
     local node_version npm_version
     node_version=$(node --version 2>/dev/null | sed 's/v//' || echo "not_installed")
@@ -178,7 +177,7 @@ generate_manifest() {
     echo "    \"node\": \"${node_version}\","
     echo "    \"npm\": \"${npm_version}\""
     echo "  },"
-    
+
     echo "  \"python\": {"
     local python_version pip_version
     python_version=$(python3 --version 2>/dev/null | awk '{print $2}' || echo "not_installed")
@@ -186,58 +185,63 @@ generate_manifest() {
     echo "    \"python3\": \"${python_version}\","
     echo "    \"pip\": \"${pip_version}\""
     echo "  },"
-    
+
     echo "  \"binaries\": {"
-    
+
     local docker_buildx_version
     docker_buildx_version=$(docker buildx version 2>/dev/null | awk '{print $2}' || echo "not_installed")
     printf "    \"docker-buildx\": \"%s\"" "$docker_buildx_version"
     echo ","
-    
+
     local docker_compose_version
     docker_compose_version=$(docker compose version 2>/dev/null | awk '{print $4}' | tr -d 'v' || echo "not_installed")
     printf "    \"docker-compose\": \"%s\"" "$docker_compose_version"
     echo ","
-    
+
     local kind_version
     kind_version=$(kind version 2>/dev/null | awk '{print $2}' | sed 's/v//' || echo "not_installed")
     printf "    \"kind\": \"%s\"" "$kind_version"
     echo ","
-    
+
     local kubectl_version
     kubectl_version=$(kubectl version --client -o json 2>/dev/null | grep -oP '"gitVersion":\s*"v\K[0-9.]+' || echo "not_installed")
     printf "    \"kubectl\": \"%s\"" "$kubectl_version"
     echo ","
-    
+
     local helm_version
     helm_version=$(helm version --short 2>/dev/null | sed 's/v//' || echo "not_installed")
     printf "    \"helm\": \"%s\"" "$helm_version"
     echo ","
-    
+
     local minikube_version
     minikube_version=$(minikube version --short 2>/dev/null | sed 's/v//' || echo "not_installed")
     printf "    \"minikube\": \"%s\"" "$minikube_version"
     echo ","
-    
+
     local kustomize_version
     kustomize_version=$(kustomize version 2>/dev/null | grep -oP 'v?\K[0-9]+\.[0-9]+\.[0-9]+' || echo "not_installed")
     printf "    \"kustomize\": \"%s\"" "$kustomize_version"
     echo ","
-    
+
     local yq_version
     yq_version=$(yq --version 2>/dev/null | grep -oP 'version v\K[0-9.]+' || echo "not_installed")
     printf "    \"yq\": \"%s\"" "$yq_version"
     echo ","
-    
+
     local zstd_version
     zstd_version=$(zstd --version 2>/dev/null | grep -oP 'v\K[0-9.]+' || echo "not_installed")
     printf "    \"zstd\": \"%s\"" "$zstd_version"
     echo ","
-    
+
+    local upx_version
+    upx_version=$(upx --version 2>/dev/null | head -n1 | awk '{print $2}' || echo "not_installed")
+    printf "    \"upx\": \"%s\"" "$upx_version"
+    echo ","
+
     local pipx_version
     pipx_version=$(pipx --version 2>/dev/null | tr -d ' ' || echo "not_installed")
     printf "    \"pipx\": \"%s\"" "$pipx_version"
-    
+
     echo ""
     echo "  }"
     echo "}"
