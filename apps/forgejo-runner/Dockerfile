@@ -3,7 +3,7 @@
 ARG VERSION
 FROM code.forgejo.org/forgejo/runner:${VERSION} AS forgejo-runner
 
-FROM ghcr.io/pando85/ci-runner:rolling@sha256:54b042fac0862b8d97faae508bc7a91ba706a33f91af4158d1a72ea7cceed470
+FROM ghcr.io/pando85/ci-runner:rolling@sha256:1316f17ef14b864a82e1ef4cda3d058061dade2d84d6d3efc07bfd9a610959de
 ARG TARGETARCH
 
 RUN adduser --disabled-password --gecos "" --uid 1001 runner \
