@@ -6,7 +6,7 @@ variable "APP" {
 
 variable "VERSION" {
   // renovate: datasource=docker depName=ubuntu
-  default = "noble-20260410"
+  default = "noble-20260509.1"
 }
 
 variable "SOURCE" {
