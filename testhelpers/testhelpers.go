@@ -84,8 +84,8 @@ func TestHTTPEndpoint(t *testing.T, ctx context.Context, image string, httpConfi
 	opts := []testcontainers.ContainerCustomizer{
 		testcontainers.WithExposedPorts(portStr),
 		testcontainers.WithWaitStrategy(
-			wait.ForListeningPort(portTCP),
-			wait.ForHTTP(httpConfig.Path).WithPort(portTCP).WithStatusCodeMatcher(func(status int) bool {
+			wait.ForListeningPort(string(portTCP)),
+			wait.ForHTTP(httpConfig.Path).WithPort(string(portTCP)).WithStatusCodeMatcher(func(status int) bool {
 				return status == httpConfig.StatusCode
 			}),
 		),
