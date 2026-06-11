@@ -6,7 +6,7 @@ variable "APP" {
 
 variable "VERSION" {
   // renovate: datasource=docker depName=code.forgejo.org/forgejo/runner
-  default = "12.10.2"
+  default = "12.11.0"
 }
 
 variable "SOURCE" {
