@@ -6,7 +6,7 @@ variable "APP" {
 
 variable "VERSION" {
   // renovate: datasource=docker depName=ubuntu
-  default = "noble-20260810"
+  default = "resolute-20260912"
 }
 
 variable "SOURCE" {
@@ -36,7 +36,7 @@ target "image-local" {
   output = ["type=docker"]
   tags = [
     "${APP}:ubuntu-${VERSION}",
-    "${APP}:ubuntu-24.04"
+    "${APP}:ubuntu-26.04"
     ]
 }
 
