@@ -56,7 +56,7 @@
       matchPackageNames: [
         '/ubuntu/',
       ],
-      allowedVersions: '/24\\.04|noble(-[0-9]+)?/',
+      allowedVersions: '/26\\.04|resolute(-[0-9.]+)?/',
     },
     {
       description: 'Allowed Alpine Version for Base Images',
@@ -125,10 +125,10 @@
       matchUpdateTypes: [
         'minor',
       ],
+      semanticCommitType: 'feat',
       labels: [
         'type/minor',
       ],
-      semanticCommitType: 'feat',
       commitMessageExtra: '({{currentVersion}} → {{newVersion}})',
     },
     {
