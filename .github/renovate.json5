@@ -125,10 +125,10 @@
       matchUpdateTypes: [
         'minor',
       ],
-      semanticCommitType: 'feat',
       labels: [
         'type/minor',
       ],
+      semanticCommitType: 'feat',
       commitMessageExtra: '({{currentVersion}} → {{newVersion}})',
     },
     {
