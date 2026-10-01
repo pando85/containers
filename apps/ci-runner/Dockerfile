@@ -52,7 +52,7 @@ RUN apt-get update \
         locales \
         mercurial \
         openssh-client \
-        p7zip-rar \
+        7zip-rar \
         pkg-config \
         python-is-python3 \
         rpm \
@@ -89,7 +89,7 @@ RUN apt-get update \
         mediainfo \
         net-tools \
         netcat-openbsd \
-        p7zip-full \
+        7zip \
         parallel \
         patchelf \
         pigz \
@@ -177,12 +177,7 @@ RUN curl -fsSL https://raw.githubusercontent.com/tj/n/master/bin/n -o /tmp/n \
     && rm -rf /tmp/n
 
 # go setup
-RUN curl -fsSL 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x876b22ba887ca91614B5323fc631127f87fa12d1' \
-        | gpg --dearmor -o /usr/share/keyrings/golang-backports-keyring.gpg \
-    && echo \
-        "deb [arch=${TARGETARCH} signed-by=/usr/share/keyrings/golang-backports-keyring.gpg] http://ppa.launchpad.net/longsleep/golang-backports/ubuntu \
-        $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/golang-backports.list > /dev/null \
-    && apt-get update \
+RUN apt-get update \
     && apt-get install -y --no-install-recommends golang-go \
     && rm -rf /var/lib/apt/lists/*
 
