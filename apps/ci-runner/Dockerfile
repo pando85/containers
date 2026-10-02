@@ -204,8 +204,10 @@ RUN \
     && curl -fsSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash \
     && curl -fsSL https://storage.googleapis.com/minikube/releases/latest/minikube-linux-${TARGETARCH} -o /usr/local/bin/minikube \
     && chmod +x /usr/local/bin/minikube \
-    && curl -fsSL https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh | bash \
-    && mv kustomize /usr/local/bin
+    && curl -fsSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.8.2/kustomize_v5.8.2_linux_${TARGETARCH}.tar.gz -o kustomize.tar.gz \
+    && tar xzf kustomize.tar.gz \
+    && mv kustomize /usr/local/bin \
+    && rm kustomize.tar.gz
 
 # postgres setup
 RUN curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql.gpg \
