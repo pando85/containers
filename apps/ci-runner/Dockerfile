@@ -140,7 +140,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && echo '[global]' > /etc/pip.conf \
     && echo 'break-system-packages = true' >> /etc/pip.conf \
-    && python3 -m pip install pipx \
+    && python3 -m pip install --ignore-installed pipx \
     && python3 -m pipx ensurepath
 
 # rust setup
