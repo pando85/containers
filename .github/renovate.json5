@@ -57,6 +57,7 @@
         '/ubuntu/',
       ],
       allowedVersions: '/26\\.04|resolute(-[0-9.]+)?/',
+      minimumReleaseAge: '1 day',
     },
     {
       description: 'Allowed Alpine Version for Base Images',
