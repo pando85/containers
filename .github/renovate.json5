@@ -211,5 +211,18 @@
       automerge: true,
       automergeType: 'pr',
     },
+    {
+      description: 'Require reviewed digest updates for forked Forgejo Runner GC image',
+      matchDatasources: [
+        'docker',
+      ],
+      matchPackageNames: [
+        'ghcr.io/pando85/runner',
+      ],
+      matchFileNames: [
+        'apps/forgejo-runner-gc/Dockerfile',
+      ],
+      automerge: false,
+    },
   ],
 }
