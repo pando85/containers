@@ -155,6 +155,7 @@ RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --default-toolchain=stable --p
     && chmod -R 777 "$(dirname "${RUSTUP_HOME}")"
 
 # sccache (upstream prebuilt binary, enabled explicitly by CI jobs)
+# renovate: datasource=github-releases depName=mozilla/sccache versioning=semver extractVersion=^v(?<version>.*)$
 ARG SCCACHE_VERSION=0.19.0
 RUN set -eux; \
     case "${TARGETARCH}" in \
