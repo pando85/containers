@@ -154,6 +154,26 @@ RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --default-toolchain=stable --p
     && rm -rf ${CARGO_HOME}/registry/* \
     && chmod -R 777 "$(dirname "${RUSTUP_HOME}")"
 
+# sccache (upstream prebuilt binary, enabled explicitly by CI jobs)
+# renovate: datasource=github-releases depName=mozilla/sccache versioning=semver extractVersion=^v(?<version>.*)$
+ARG SCCACHE_VERSION=0.19.0
+RUN set -eux; \
+    case "${TARGETARCH}" in \
+        amd64) sccache_arch=x86_64 ;; \
+        arm64) sccache_arch=aarch64 ;; \
+        *) echo "Unsupported sccache architecture: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac; \
+    archive="sccache-v${SCCACHE_VERSION}-${sccache_arch}-unknown-linux-musl.tar.gz"; \
+    url="https://github.com/mozilla/sccache/releases/download/v${SCCACHE_VERSION}/${archive}"; \
+    curl -fsSL "${url}" -o "/tmp/${archive}"; \
+    checksum="$(curl -fsSL "${url}.sha256")"; \
+    printf '%s\n' "${checksum}" | grep -Eq '^[0-9a-fA-F]{64}$'; \
+    printf '%s  %s\n' "${checksum}" "/tmp/${archive}" | sha256sum -c -; \
+    tar -xzf "/tmp/${archive}" -C /usr/local/bin --strip-components=1 --wildcards '*/sccache'; \
+    chmod +x /usr/local/bin/sccache; \
+    sccache --version | grep -Fx "sccache ${SCCACHE_VERSION}"; \
+    rm -f "/tmp/${archive}"
+
 # nodejs setup
 RUN curl -fsSL https://raw.githubusercontent.com/tj/n/master/bin/n -o /tmp/n \
     && bash /tmp/n lts \
