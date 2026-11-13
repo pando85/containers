@@ -5,7 +5,7 @@
 # Verified source build: https://github.com/pando85/runner/actions/runs/41213285659
 FROM ghcr.io/pando85/runner:edge@sha256:9b038cc4617ece507f6097eb78d93af4b09b07ee116567a6e68a42d0f0cad31a AS forgejo-runner
 
-FROM ghcr.io/pando85/ci-runner:rolling@sha256:cd4875b78df8a19974023c5c0fb1b9afed5aa1d91117dcc14c2add765baafaa9
+FROM ghcr.io/pando85/ci-runner:rolling@sha256:c8b5df48ed1541c2403a80178e34134e2e229698c4f860d7ec0ec7ef8fc77f21
 
 RUN adduser --disabled-password --gecos "" --uid 1001 runner \
     && usermod -aG sudo runner \
