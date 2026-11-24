@@ -156,7 +156,7 @@ RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --default-toolchain=stable --p
 
 # sccache (upstream prebuilt binary, enabled explicitly by CI jobs)
 # renovate: datasource=github-releases depName=mozilla/sccache versioning=semver extractVersion=^v(?<version>.*)$
-ARG SCCACHE_VERSION=0.19.0
+ARG SCCACHE_VERSION=0.20.1
 RUN set -eux; \
     case "${TARGETARCH}" in \
         amd64) sccache_arch=x86_64 ;; \
